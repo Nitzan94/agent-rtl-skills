@@ -34,13 +34,16 @@ get English" tool. The engine is the reusable asset; the per-form map is throwaw
 
 ## Known limitations (`translate-rtl-form`)
 
-Validated on a real, dense government form (Israeli Form 106). It produced a readable
-English LTR version in one pass — and surfaced the inherent rough edges to expect:
+Validated on real text-layer Hebrew forms, including a dense government form
+(Israeli Form 106) and payslip-like PDFs with embedded logos. The engine primitives
+can classify, empty, mirror, and refill these files; the translation map remains the
+manual/per-template part.
 
 - **One translation map per form template.** The engine is reusable; the map is
   throwaway and hand-built per form. This is not a drop-in, zero-config converter.
 - **Long flowing paragraphs / badly-glued spans can be missed.** They're reported as
-  MISSES (never dropped silently) — you place them manually from the coordinate dump.
+  MISSES (never dropped silently) — inspect `span_dump` and place them manually from
+  the coordinate dump.
 - **Already-LTR numeric runs reverse under the mirror** (e.g. a `1…12` months header
   becomes `12…1`). Detect purely-numeric horizontal runs and re-place them un-mirrored.
 - **Form template marker glyphs pass through as text** (e.g. repeated row markers) and
@@ -64,6 +67,19 @@ cd translate-rtl-form/scripts
 uv run --with PyMuPDF --with pillow python example_translate.py
 # -> demo_translated.pdf : sample form emptied, mirrored, refilled from a map
 ```
+
+## Validation before publishing
+
+```
+python3 -m py_compile translate-rtl-form/scripts/*.py
+cd translate-rtl-form/scripts
+uv run --with PyMuPDF --with pillow python example_translate.py
+```
+
+Then render `demo_translated.pdf` and visually verify that labels are translated,
+numbers are preserved, and the page is mirrored. For real Hebrew/Arabic PDFs, first
+run the skill's `classify_page` and `span_dump` helpers; expect to build one map per
+form template.
 
 ## Installing locally
 

@@ -1,17 +1,15 @@
 ---
 name: translate-rtl-form
-description: Translate a filled, text-based PDF form into another language while keeping the EXACT original form — empty only the text, then refill, mirroring an RTL (Hebrew / Arabic) layout to left-to-right so it reads naturally in English. The boxes, lines, logos, and every number stay; only the text is swapped.
-when_to_use: >
-  Use when someone has a filled, text-based PDF form (payslip, certificate, tax
-  form, invoice, official letter) in a right-to-left language (Hebrew, Arabic) and
-  wants it in English (or another language) WHILE keeping the exact original form —
-  same boxes, logos, lines, and every number in place, only the text translated and
-  the layout flipped to read left-to-right. Trigger phrases: "translate this PDF
-  form", "keep the same form but in English", "make it LTR for English", "empty the
-  form and fill it in <language>", "same document just translated". NOT for
-  scanned/photographed PDFs (no text layer) — detect and refuse. NOT for plain prose
-  PDFs where layout doesn't matter (just translate the text). NOT for authoring a
-  NEW RTL document — use an RTL-authoring skill for that.
+description: >
+  Translate a filled, text-based PDF form into another language while keeping the
+  exact original form: empty only the text, mirror an RTL (Hebrew / Arabic) layout
+  to LTR when translating to English, then refill fitted-to-cell. Use for payslips,
+  certificates, tax forms, invoices, official letters, and other fixed-layout forms
+  where boxes, lines, logos, and numbers must stay. Trigger phrases include
+  "translate this PDF form", "keep the same form but in English", "make it LTR for
+  English", "empty the form and fill it in another language", and "same document just
+  translated". Not for scanned/photographed PDFs with no text layer, plain prose
+  PDFs where layout does not matter, or authoring a new RTL document.
 ---
 
 # Translate an RTL PDF Form In Place (RTL → LTR mirror)
@@ -46,8 +44,9 @@ View output with a PDF-rendering read (renders pages visually). Never trust "it 
 
 ## Files in this skill
 - `scripts/pdf_form_engine.py` — the reusable, language-agnostic engine:
-  `classify_page`, `extract_spans`, `capture_logos`, `empty_form`, `rasterize`,
-  `fit_text`, `place_items`. Import it; don't reinvent it.
+  `classify_page`, `extract_spans`, `span_dump`, `recover_legacy_text`,
+  `capture_logos`, `empty_form`, `rasterize`, `fit_text`, `place_items`. Import it;
+  don't reinvent it.
 - `scripts/example_translate.py` — a runnable, SYNTHETIC demo of the full engine
   pipeline (build sample → classify → extract → empty → mirror-flip → refill from a
   map → report misses). It uses placeholder Latin labels and a generated form so it
@@ -67,11 +66,16 @@ Open it, note page count, and run `classify_page` per page:
 **Success**: page count known; encoding identified or scanned-PDF refusal surfaced.
 
 ### 2. Extract spans + build the translation map
-Collect every text span (text + bbox + size). Classify source-language spans vs
-numbers. For phrase reconstruction, cluster by line (same y, ≤3px) + small x-gap
-(≤14px) so header phrases merge but table columns stay separate; reconstruct each
-phrase in **logical** order (RTL extraction returns visual/reversed order). Map each
-phrase → `target_language`:
+Collect every text span (text + bbox + size). Start with `span_dump(page,
+codepage="cp1255")` for Hebrew legacy PDFs or `span_dump(page, codepage="cp1256")`
+for Arabic legacy PDFs; omit `codepage` for real Unicode PDFs. This dump gives text,
+decoded text, bbox, mirrored x, font, and size for manual maps and corrections.
+
+Classify source-language spans vs numbers. For phrase reconstruction, cluster by line
+(same y, ≤3px) + small x-gap (≤14px) so header phrases merge but table columns stay
+separate; reconstruct each phrase in **logical** order (RTL extraction often returns
+visual/reversed order, and some PDFs glue a label and adjacent value into one span).
+Map each phrase → `target_language`:
 - **Map by decoded phrase → dictionary** (`DICT`) — robust; reports misses when a
   cluster has no entry. Prefer this when the form may vary.
 - Map by first-seen **index** only for a frozen, known source (brittle: one
@@ -133,6 +137,9 @@ When the reviewer returns a punch-list, don't eyeball-nudge:
   purely-numeric horizontal runs and re-place them un-mirrored.
 - **RTL extraction returns VISUAL (reversed) order** — re-map to logical, don't copy.
   Cross-check leave/balance rows with `prev + credit = new`.
+- **Some PDFs glue label + value into one span** (for example, a Hebrew label plus an
+  English or numeric value). Treat the glued string as the source key, or suppress the
+  glued span and re-place the label/value manually from `span_dump`.
 - **`pip` may be unavailable** — use `uv run --with ...` (no venv dance).
 - **White-fill redaction punches holes in shaded headers** — use `fill=False`.
 - **Target language is usually longer** than RTL source — expect to shrink fonts or

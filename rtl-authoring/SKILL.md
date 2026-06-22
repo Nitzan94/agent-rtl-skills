@@ -1,16 +1,15 @@
 ---
 name: rtl-authoring
-description: Author correct right-to-left (Hebrew / Arabic) content — HTML/CSS, PDF, Markdown, UI copy — handling the bidi algorithm, mixed LTR runs (numbers, English, code, URLs), punctuation and bracket mirroring, fonts, and Arabic shaping. Use when producing NEW RTL output or fixing RTL that renders backwards, with flipped numbers/parentheses, or mojibake.
-when_to_use: >
-  Use when you are PRODUCING or FIXING right-to-left content (Hebrew or Arabic):
-  an HTML page/email, a generated PDF, a Markdown doc, UI strings, or a report
-  that must read RTL. Especially when the output renders backwards, numbers or
-  punctuation jump to the wrong side, parentheses/brackets look reversed, English
-  or code embedded in Hebrew breaks the line, or Arabic letters come out isolated
-  (unjoined). Trigger phrases: "write this in Hebrew/Arabic", "make this RTL",
-  "the Hebrew is backwards", "numbers are in the wrong place", "parentheses are
-  flipped", "render Hebrew PDF", "RTL email/invoice/doc". NOT for translating an
-  existing fixed-layout PDF form — that's the `empty-and-fill-pdf` skill.
+description: >
+  Author correct right-to-left (Hebrew / Arabic) content: HTML/CSS, generated PDFs,
+  Markdown, UI copy, emails, invoices, docs, and reports. Use when producing NEW RTL
+  output or fixing RTL that renders backwards, has numbers or punctuation on the
+  wrong side, flipped parentheses/brackets, broken embedded English/code/URLs, tofu,
+  mojibake, or isolated Arabic letters. Trigger phrases include "write this in
+  Hebrew/Arabic", "make this RTL", "the Hebrew is backwards", "numbers are in the
+  wrong place", "parentheses are flipped", "render Hebrew PDF", and "RTL
+  email/invoice/doc". Not for translating an existing fixed-layout PDF form; use
+  translate-rtl-form for that.
 ---
 
 # RTL Authoring (Hebrew / Arabic)
@@ -62,6 +61,9 @@ If a number/parenthesis still lands wrong, the run isn't isolated — see below.
   - CSS: `unicode-bidi: isolate` (or `isolate-override` to also force direction).
   - Bare control chars when you can't add markup: `&rlm;` (RLM) / `&lrm;` (LRM),
     or isolates `&#x2066;…&#x2069;` (LRI/PDI).
+- Long URLs often stay directionally correct but wrap awkwardly in RTL blocks. If the
+  exact URL must remain visually intact, isolate it and add `white-space: nowrap`;
+  otherwise prefer a short link label.
 - `<bdo dir="ltr">` only when you must *force* visual order (rare; debugging).
 
 Mixed example that renders correctly:
@@ -86,7 +88,7 @@ many libraries place glyphs with **no bidi and no shaping**.
   visual) **+ `arabic-reshaper`** (Arabic contextual forms). Hebrew needs python-bidi
   but NOT reshaping; Arabic needs both.
 - **Editing an existing fixed-layout form** (not authoring): that's a different
-  problem — use the `empty-and-fill-pdf` skill (empty → mirror → refill).
+  problem — use the `translate-rtl-form` skill (empty → mirror → refill).
 
 ## Fonts
 

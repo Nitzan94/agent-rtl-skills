@@ -8,7 +8,7 @@
 # real translation run does; only the source and the map change.
 import fitz
 from pdf_form_engine import (classify_page, extract_spans, capture_logos,
-                             empty_form, rasterize, place_items)
+                             empty_form, rasterize, place_items, span_dump)
 
 OUT_BLANK = "demo_emptied.pdf"
 OUT_FINAL = "demo_translated.pdf"
@@ -49,6 +49,7 @@ def translate(src, mirror=True):
         W, H = page.rect.width, page.rect.height
         print("classify:", classify_page(page)[0])
         spans = extract_spans(page)
+        print("spans:", len(span_dump(page)))
 
         # build placement items: translate label spans, pass numbers through verbatim
         items = []

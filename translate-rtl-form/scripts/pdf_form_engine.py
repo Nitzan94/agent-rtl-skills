@@ -6,6 +6,7 @@ from PIL import Image
 
 FONT = "helv"
 ZOOM = 3.5
+RTL_RANGES = (('\u0590', '\u05ff'), ('\u0600', '\u06ff'))
 
 
 # ---- detection -------------------------------------------------------------
@@ -27,11 +28,52 @@ def classify_page(page):
     return "CLEAN-ascii/latin", nchars, nimgs
 
 
+def has_rtl(text):
+    """True when text contains Hebrew or Arabic characters."""
+    return any(lo <= c <= hi for c in text for lo, hi in RTL_RANGES)
+
+
+def recover_legacy_text(text, codepage="cp1255", reverse=True):
+    """Recover Hebrew/Arabic text extracted as Latin-1 mojibake.
+
+    Use cp1255 for Hebrew and cp1256 for Arabic. Many RTL PDFs expose visual-order
+    glyphs, so reverse=True is the useful default; inspect span dumps before trusting
+    the result for mixed number/value runs.
+    """
+    decoded = text.encode("latin1").decode(codepage)
+    return decoded[::-1] if reverse else decoded
+
+
 # ---- extraction ------------------------------------------------------------
 def extract_spans(page):
     """Every non-empty text span with bbox + size + font."""
     return [s for b in page.get_text("dict")["blocks"]
             for l in b.get("lines", []) for s in l["spans"] if s["text"].strip()]
+
+
+def span_dump(page, codepage=None):
+    """Sorted span records for manual maps and review-round corrections."""
+    W = page.rect.width
+    rows = []
+    for idx, s in enumerate(sorted(extract_spans(page), key=lambda x: (x["bbox"][1], x["bbox"][0]))):
+        x0, y0, x1, y1 = s["bbox"]
+        raw = s["text"].strip()
+        decoded = raw
+        if codepage:
+            try:
+                decoded = recover_legacy_text(raw, codepage=codepage)
+            except Exception:
+                decoded = raw
+        rows.append({
+            "idx": idx,
+            "text": raw,
+            "decoded": decoded,
+            "bbox": (round(x0, 2), round(y0, 2), round(x1, 2), round(y1, 2)),
+            "mirror_x": round(W - x1, 2),
+            "size": round(s["size"], 2),
+            "font": s.get("font", ""),
+        })
+    return rows
 
 
 def capture_logos(page):
