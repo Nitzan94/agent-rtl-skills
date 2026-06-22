@@ -77,9 +77,11 @@ many libraries place glyphs with **no bidi and no shaping**.
 - **Glyph-placement libs (PyMuPDF `insert_text`, bare ReportLab `drawString`)** do
   NOT run UBA and do NOT shape Arabic. Output = backwards / isolated letters. Avoid
   for RTL body text.
-- **Best path: author HTML and render to PDF** — `weasyprint`, Playwright/`page.pdf()`,
-  or `wkhtmltopdf`. The browser engine does bidi + shaping for free. Easiest correct
-  result.
+- **Best path: author HTML and render to PDF** — the engine does bidi + shaping for
+  free. Most reliable zero-setup renderer on a typical machine is **headless Chrome**:
+  `"…/Google Chrome" --headless --no-pdf-header-footer --print-to-pdf=out.pdf file://abs.html`.
+  `weasyprint` also works but needs native libs (pango/cairo) installed first;
+  Playwright `page.pdf()` and `wkhtmltopdf` are fine if already set up.
 - **If you must go programmatic:** ReportLab **+ `python-bidi`** (reorders logical→
   visual) **+ `arabic-reshaper`** (Arabic contextual forms). Hebrew needs python-bidi
   but NOT reshaping; Arabic needs both.
