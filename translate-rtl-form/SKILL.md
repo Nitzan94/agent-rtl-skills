@@ -56,8 +56,8 @@ Open it, note page count, and run `classify_page` per page:
 - **Legacy codepage read as Latin-1** (gibberish like `êåúî`) — recover with
   `t.encode('latin1').decode(cp)` where `cp` is `cp1255` (Hebrew) or `cp1256`
   (Arabic), then reverse for logical order.
-- **No text + images present** → scanned / no text layer. **STOP and tell the user** —
-  this skill can't do scanned PDFs (that needs OCR).
+- **No text + images present** → `SCANNED/no-text`: scanned / no text layer.
+  **STOP and tell the user** — this skill can't do scanned PDFs (that needs OCR).
 **Success**: page count known; encoding identified or scanned-PDF refusal surfaced.
 
 ### 2. Extract spans + build the translation map
@@ -76,7 +76,7 @@ Map each phrase → `target_language`:
 - Map by first-seen **index** only for a frozen, known source (brittle: one
   added/removed span shifts every mapping — see gotchas).
 Carry numbers embedded inside a source span into the translation. Report any
-unmapped cluster as a MISS — never drop silently.
+unmapped cluster under a `MISSES:` line — never drop silently.
 **Success**: every cluster mapped or misses listed; print to sanity-check.
 
 ### 3. Capture logos

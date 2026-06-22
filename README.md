@@ -71,15 +71,18 @@ uv run --with PyMuPDF --with pillow python example_translate.py
 ## Validation before publishing
 
 ```
+uv run --with PyMuPDF --with pillow python scripts/evaluate_bundle.py
 python3 -m py_compile translate-rtl-form/scripts/*.py
 cd translate-rtl-form/scripts
 uv run --with PyMuPDF --with pillow python example_translate.py
 ```
 
-Then render `demo_translated.pdf` and visually verify that labels are translated,
-numbers are preserved, and the page is mirrored. For real Hebrew/Arabic PDFs, first
-run the skill's `classify_page` and `span_dump` helpers; expect to build one map per
-form template.
+The bundle eval is a no-API, SkillOpt-style gate: it generates public synthetic
+fixtures, checks metadata/guidance, exercises Unicode/legacy/scanned PDF handling,
+and verifies the mirror/refill primitives. Then render `demo_translated.pdf` and
+visually verify that labels are translated, numbers are preserved, and the page is
+mirrored. For real Hebrew/Arabic PDFs, first run the skill's `classify_page` and
+`span_dump` helpers; expect to build one map per form template.
 
 ## Installing locally
 
