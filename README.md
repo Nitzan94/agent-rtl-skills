@@ -30,6 +30,25 @@ Honest scope: `translate-rtl-form` is **semi-manual** — one translation map pe
 template, with a visual-verify-and-iterate loop. It is not a one-click "drop a PDF,
 get English" tool. The engine is the reusable asset; the per-form map is throwaway.
 
+## Known limitations (`translate-rtl-form`)
+
+Validated on a real, dense government form (Israeli Form 106). It produced a readable
+English LTR version in one pass — and surfaced the inherent rough edges to expect:
+
+- **One translation map per form template.** The engine is reusable; the map is
+  throwaway and hand-built per form. This is not a drop-in, zero-config converter.
+- **Long flowing paragraphs / badly-glued spans can be missed.** They're reported as
+  MISSES (never dropped silently) — you place them manually from the coordinate dump.
+- **Already-LTR numeric runs reverse under the mirror** (e.g. a `1…12` months header
+  becomes `12…1`). Detect purely-numeric horizontal runs and re-place them un-mirrored.
+- **Form template marker glyphs pass through as text** (e.g. repeated row markers) and
+  can clutter; filter them per form if needed.
+- **Field/reference codes are preserved verbatim** (correct, but can look cryptic).
+- **Scanned / image-only PDFs are refused** — they have no text layer (needs OCR).
+
+In short: it gets you a faithful, ~90%-there English form fast; the last mile is a
+short visual-verify-and-iterate loop, which the skill documents.
+
 ## Requirements
 
 - Claude Code (these are skills, run by the agent).
