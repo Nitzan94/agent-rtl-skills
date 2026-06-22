@@ -1,15 +1,10 @@
 ---
 name: rtl-authoring
 description: >
-  Author correct right-to-left (Hebrew / Arabic) content: HTML/CSS, generated PDFs,
-  Markdown, UI copy, emails, invoices, docs, and reports. Use when producing NEW RTL
-  output or fixing RTL that renders backwards, has numbers or punctuation on the
-  wrong side, flipped parentheses/brackets, broken embedded English/code/URLs, tofu,
-  mojibake, or isolated Arabic letters. Trigger phrases include "write this in
-  Hebrew/Arabic", "make this RTL", "the Hebrew is backwards", "numbers are in the
-  wrong place", "parentheses are flipped", "render Hebrew PDF", and "RTL
-  email/invoice/doc". Not for translating an existing fixed-layout PDF form; use
-  translate-rtl-form for that.
+  Author or fix right-to-left Hebrew/Arabic content in HTML, PDFs, Markdown, UI copy,
+  emails, invoices, docs, and reports. Use for broken bidi rendering, mixed English,
+  numbers, code, URLs, punctuation, brackets, fonts, mojibake, or Arabic shaping.
+  Not for translating existing fixed-layout PDF forms; use translate-rtl-form.
 ---
 
 # RTL Authoring (Hebrew / Arabic)

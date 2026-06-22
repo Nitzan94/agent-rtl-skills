@@ -1,15 +1,10 @@
 ---
 name: translate-rtl-form
 description: >
-  Translate a filled, text-based PDF form into another language while keeping the
-  exact original form: empty only the text, mirror an RTL (Hebrew / Arabic) layout
-  to LTR when translating to English, then refill fitted-to-cell. Use for payslips,
-  certificates, tax forms, invoices, official letters, and other fixed-layout forms
-  where boxes, lines, logos, and numbers must stay. Trigger phrases include
-  "translate this PDF form", "keep the same form but in English", "make it LTR for
-  English", "empty the form and fill it in another language", and "same document just
-  translated". Not for scanned/photographed PDFs with no text layer, plain prose
-  PDFs where layout does not matter, or authoring a new RTL document.
+  Translate filled, text-based RTL PDF forms while preserving the original boxes,
+  lines, logos, and numbers. Use for Hebrew/Arabic payslips, certificates, tax
+  forms, invoices, and official forms that need an English/LTR version with the same
+  layout. Not for scanned PDFs, prose PDFs, or authoring new RTL documents.
 ---
 
 # Translate an RTL PDF Form In Place (RTL → LTR mirror)
