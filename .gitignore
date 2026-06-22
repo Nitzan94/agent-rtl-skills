@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+demo_*.pdf
+.venv/
+.ruff_cache/
