@@ -40,8 +40,8 @@ View output with a PDF-rendering read (renders pages visually). Never trust "it 
 ## Files in this skill
 - `scripts/pdf_form_engine.py` — the reusable, language-agnostic engine:
   `classify_page`, `extract_spans`, `span_dump`, `recover_legacy_text`,
-  `capture_logos`, `empty_form`, `rasterize`, `fit_text`, `place_items`. Import it;
-  don't reinvent it.
+  `is_numeric_like`, `capture_logos`, `mirror_rect`, `empty_form`, `rasterize`,
+  `fit_text`, `place_items`. Import it; don't reinvent it.
 - `scripts/example_translate.py` — a runnable, SYNTHETIC demo of the full engine
   pipeline (build sample → classify → extract → empty → mirror-flip → refill from a
   map → report misses). It uses placeholder Latin labels and a generated form so it
@@ -52,7 +52,8 @@ View output with a PDF-rendering read (renders pages visually). Never trust "it 
 
 ### 1. Get the source PDF and classify it
 Open it, note page count, and run `classify_page` per page:
-- **Real Unicode** Hebrew (U+0590–U+05FF) / Arabic (U+0600–U+06FF) — use directly.
+- **Real Unicode Hebrew** (`UNICODE-Hebrew`, U+0590–U+05FF) or **Arabic**
+  (`UNICODE-Arabic`, U+0600–U+06FF) — use directly.
 - **Legacy codepage read as Latin-1** (gibberish like `êåúî`) — recover with
   `t.encode('latin1').decode(cp)` where `cp` is `cp1255` (Hebrew) or `cp1256`
   (Arabic), then reverse for logical order.
@@ -90,8 +91,8 @@ backgrounds, lines, and logos; removes only text.
 
 ### 5. Mirror the form (RTL→LTR)
 `rasterize(page, flip=True)` → flipped PNG; place as the new page background. Then
-re-paste each logo upright at its mirrored rect `[W-x1, y0, W-x0, y1]` (covers the
-backwards copy in the raster).
+re-paste each logo upright with `mirror_rect(W, rect)` (covers the backwards copy in
+the raster).
 **Skip the flip** (place text at original positions) only if target and source share
 direction.
 
@@ -128,8 +129,8 @@ When the reviewer returns a punch-list, don't eyeball-nudge:
 
 ## Gotchas
 - **Mirror reverses already-LTR runs.** Numeric sequences that read left-to-right in
-  the source (e.g. a months header `1…12`) come out reversed (`12…1`). Detect
-  purely-numeric horizontal runs and re-place them un-mirrored.
+  the source (e.g. a months header `1…12`) come out reversed (`12…1`). Use
+  `is_numeric_like` to detect numeric/date/code runs and re-place them un-mirrored.
 - **RTL extraction returns VISUAL (reversed) order** — re-map to logical, don't copy.
   Cross-check leave/balance rows with `prev + credit = new`.
 - **Some PDFs glue label + value into one span** (for example, a Hebrew label plus an

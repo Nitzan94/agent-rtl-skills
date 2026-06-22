@@ -1,6 +1,7 @@
 # ABOUTME: Reusable PDF form engine — the primitives shared by translate / empty / redact tasks.
 # ABOUTME: Translation-specific bits (maps, mirror flag) are passed IN; the engine itself is language/task-agnostic.
 import io
+import re
 import fitz
 from PIL import Image
 
@@ -17,8 +18,10 @@ def classify_page(page):
     nimgs = len(page.get_images(full=True))
     if nchars == 0:
         return ("SCANNED/no-text" if nimgs else "EMPTY"), nchars, nimgs
-    if any('֐' <= c <= '׿' for c in text):
+    if any('\u0590' <= c <= '\u05ff' for c in text):
         return "UNICODE-Hebrew", nchars, nimgs
+    if any('\u0600' <= c <= '\u06ff' for c in text):
+        return "UNICODE-Arabic", nchars, nimgs
     try:
         hi = sum(1 for x in text.encode('latin1', 'ignore') if x >= 0x80)
     except Exception:
@@ -31,6 +34,11 @@ def classify_page(page):
 def has_rtl(text):
     """True when text contains Hebrew or Arabic characters."""
     return any(lo <= c <= hi for c in text for lo, hi in RTL_RANGES)
+
+
+def is_numeric_like(text):
+    """True for values/dates/codes made only of digits, separators, and symbols."""
+    return bool(re.fullmatch(r"[\d\s.,:/\\\-+()%₪$€£]+", text.strip()))
 
 
 def recover_legacy_text(text, codepage="cp1255", reverse=True):
@@ -80,6 +88,12 @@ def capture_logos(page):
     """(xref, rect) for each embedded image, to re-paste upright after a mirror."""
     return [(img[0], r) for img in page.get_images(full=True)
             for r in page.get_image_rects(img[0])]
+
+
+def mirror_rect(width, rect):
+    """Mirror a rect horizontally within a page of the given width."""
+    x0, y0, x1, y1 = rect
+    return fitz.Rect(width - x1, y0, width - x0, y1)
 
 
 # ---- the core mutation: empty the text, keep the graphics ------------------

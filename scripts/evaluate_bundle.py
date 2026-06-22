@@ -89,6 +89,9 @@ def check_skill_guidance() -> None:
         "classify_page",
         "span_dump",
         "recover_legacy_text",
+        "is_numeric_like",
+        "mirror_rect",
+        "UNICODE-Arabic",
         "fill=False",
         "SCANNED/no-text",
         "glue",
@@ -133,6 +136,12 @@ def check_engine_primitives(tmp: Path) -> None:
     require(engine.has_rtl("שלום") is True, "has_rtl misses Hebrew")
     require(engine.has_rtl("مرحبا") is True, "has_rtl misses Arabic")
     require(engine.has_rtl("hello 123") is False, "has_rtl false positive")
+    require(engine.is_numeric_like("1") is True, "numeric helper misses integer")
+    require(engine.is_numeric_like("9,500") is True, "numeric helper misses comma number")
+    require(engine.is_numeric_like("2026-06-22") is True, "numeric helper misses date-like run")
+    require(engine.is_numeric_like("Tel Aviv 6789") is False, "numeric helper false positive")
+    mirrored = engine.mirror_rect(300, (20, 10, 80, 40))
+    require(tuple(round(v, 1) for v in mirrored) == (220.0, 10.0, 280.0, 40.0), "mirror_rect tuple failed")
 
     visual_hebrew = "םולש"
     mojibake = visual_hebrew.encode("cp1255").decode("latin1")
@@ -178,6 +187,21 @@ def check_engine_primitives(tmp: Path) -> None:
     require(engine.classify_page(hpage)[0] == "UNICODE-Hebrew", "Hebrew form classification failed")
     dump = engine.span_dump(hpage)
     require(dump and {"idx", "text", "decoded", "bbox", "mirror_x", "size", "font"} <= set(dump[0]), "span_dump shape changed")
+
+    arabic_pdf = tmp / "arabic-form.pdf"
+    make_text_pdf(
+        fitz,
+        arabic_pdf,
+        texts=[
+            ((250, 38), "اسم"),
+            ((40, 38), "12345"),
+            ((235, 84), "عنوان"),
+            ((40, 84), "Dubai 6789"),
+        ],
+        fontfile=fontfile,
+    )
+    adoc = fitz.open(arabic_pdf)
+    require(engine.classify_page(adoc[0])[0] == "UNICODE-Arabic", "Arabic form classification failed")
 
     scanned_pdf = tmp / "scanned.pdf"
     make_scanned_pdf(fitz, Image, scanned_pdf)

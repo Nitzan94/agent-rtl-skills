@@ -8,7 +8,8 @@
 # real translation run does; only the source and the map change.
 import fitz
 from pdf_form_engine import (classify_page, extract_spans, capture_logos,
-                             empty_form, rasterize, place_items, span_dump)
+                             empty_form, rasterize, place_items, span_dump,
+                             mirror_rect)
 
 OUT_BLANK = "demo_emptied.pdf"
 OUT_FINAL = "demo_translated.pdf"
@@ -69,8 +70,7 @@ def translate(src, mirror=True):
         op = out.new_page(width=W, height=H)
         op.insert_image(op.rect, stream=png)
         for xref, r in logos:
-            op.insert_image(fitz.Rect(W - r.x1, r.y0, W - r.x0, r.y1),
-                            pixmap=fitz.Pixmap(doc, xref))
+            op.insert_image(mirror_rect(W, r), pixmap=fitz.Pixmap(doc, xref))
         place_items(op, items, W, mirror=mirror)
 
     out.save(OUT_FINAL, garbage=4, deflate=True)
