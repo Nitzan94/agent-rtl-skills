@@ -1,7 +1,9 @@
-# RTL Skills — publishable bundle
+# RTL Skills — agent skill bundle
 
-Two Claude Code skills for working with right-to-left (Hebrew / Arabic) content.
-PII-free and rescoped from a private payslip-translation project for public release.
+Two portable agent skills for working with right-to-left (Hebrew / Arabic) content,
+in the `SKILL.md` format. Usable by any AI agent that loads skills (Claude Code, or
+any other). PII-free and rescoped from a private payslip-translation project for
+public release.
 
 ## What's here
 
@@ -22,7 +24,7 @@ The two are complementary and have deliberately non-overlapping triggers: one
 
 ## Who it's for
 
-Hebrew/Arabic-speaking developers and Claude Code users who repeatedly need:
+Hebrew/Arabic-speaking developers and AI-agent users who repeatedly need:
 - English versions of official RTL forms (visa, mortgage-abroad, employer, embassy), or
 - to generate Hebrew/Arabic docs/emails/PDFs that don't come out backwards.
 
@@ -51,7 +53,8 @@ short visual-verify-and-iterate loop, which the skill documents.
 
 ## Requirements
 
-- Claude Code (these are skills, run by the agent).
+- An AI agent that loads `SKILL.md` skills (Claude Code, or any agent supporting the
+  skill format). The skills are plain Markdown + scripts — portable, not vendor-locked.
 - Python with `uv` for the PDF engine: `uv run --with PyMuPDF --with pillow python ...`
 
 ## Try the engine demo
@@ -64,9 +67,10 @@ uv run --with PyMuPDF --with pillow python example_translate.py
 
 ## Installing locally
 
-Copy either folder into your skills directory (e.g. `~/.claude/skills/`), or publish
-the whole bundle to a git repo / skill marketplace. Each folder is a self-contained
-skill (`SKILL.md` + any `scripts/`).
+Copy either folder into your agent's skills directory (e.g. `~/.claude/skills/` for
+Claude Code, or wherever your agent loads skills from), or publish the whole bundle to
+a git repo / skill marketplace. Each folder is a self-contained skill (`SKILL.md` +
+any `scripts/`).
 
 ## Provenance
 
